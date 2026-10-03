@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>ETF Portfolio Analyzer</title><link rel="stylesheet" href="style.css"></head>
+<body>
+<header><div class="container"><span>INVESTMENT ANALYSIS</span><h1>ETF Portfolio Analyzer</h1><p>Compare ETFs and build a simple hypothetical portfolio.</p></div></header>
+<main class="container">
+<section class="panel intro"><h2>Build Your Portfolio</h2><p>Enter an investment amount and allocation percentages. The dashboard calculates your position sizes and compares key fund metrics.</p><label>Total Investment ($)<input id="investment" type="number" min="1" value="10000"></label></section>
+<section class="grid cards" id="etfCards"></section>
+<section class="panel"><div class="section-head"><h2>Portfolio Allocation</h2><strong id="allocationTotal">0%</strong></div><div id="allocations"></div><p id="warning" class="warning"></p></section>
+<section class="panel"><h2>ETF Comparison</h2><div class="table-wrap"><table><thead><tr><th>ETF</th><th>Category</th><th>Expense Ratio</th><th>Holdings</th><th>Allocation</th><th>Amount</th></tr></thead><tbody id="table"></tbody></table></div></section>
+<section class="panel"><h2>Notes</h2><ul><li>This project uses illustrative/static fund data for demonstration.</li><li>Portfolio allocation is hypothetical and is not investment advice.</li></ul></section>
+</main>
+<script>
+const funds=[{ticker:"VTI",name:"Vanguard Total Stock Market ETF",category:"Total U.S. Market",expense:.03,holdings:3700,allocation:40},{ticker:"VOO",name:"Vanguard S&P 500 ETF",category:"Large Cap U.S.",expense:.03,holdings:500,allocation:35},{ticker:"QQQ",name:"Invesco QQQ",category:"Nasdaq-100",expense:.20,holdings:100,allocation:25}];
+const $=id=>document.getElementById(id);const money=n=>new Intl.NumberFormat("en-US",{style:"currency",currency:"USD"}).format(n);
+function render(){const investment=Math.max(0,Number($("investment").value)||0);$("etfCards").innerHTML=funds.map(f=>`<div class="card"><div class="ticker">${f.ticker}</div><h3>${f.name}</h3><span>${f.category}</span><div class="metric"><b>${f.expense.toFixed(2)}%</b><small>Expense ratio</small></div><div class="metric"><b>${f.holdings.toLocaleString()}</b><small>Approx. holdings</small></div></div>`).join("");
+const total=funds.reduce((a,f)=>a+f.allocation,0);$("allocationTotal").textContent=total+"%";$("warning").textContent=total===100?"Allocation is fully invested.":`Adjust your allocations so they total 100% (currently ${total}%).`;
+$("allocations").innerHTML=funds.map((f,i)=>`<div class="alloc"><div><b>${f.ticker}</b><span>${f.allocation}% · ${money(investment*f.allocation/100)}</span></div><input data-index="${i}" type="range" min="0" max="100" value="${f.allocation}"></div>`).join("");
+$("table").innerHTML=funds.map(f=>`<tr><td><b>${f.ticker}</b></td><td>${f.category}</td><td>${f.expense.toFixed(2)}%</td><td>${f.holdings.toLocaleString()}</td><td>${f.allocation}%</td><td>${money(investment*f.allocation/100)}</td></tr>`).join("");
+document.querySelectorAll("[data-index]").forEach(x=>x.oninput=()=>{funds[+x.dataset.index].allocation=+x.value;render()})}
+$("investment").oninput=render;render();
+</script></body></html>
